@@ -16,6 +16,8 @@ import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
+
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Paragraph;
@@ -99,8 +101,10 @@ public class MainActivity extends AppCompatActivity {
             doc.open();
             doc.add(new Paragraph(txt.getText().toString()));
             doc.close();
+            Toast.makeText(this, "PDF creado", Toast.LENGTH_SHORT).show();
         }catch (FileNotFoundException e){
             e.printStackTrace();
+            Toast.makeText(this, "Error al crear el PDF", Toast.LENGTH_SHORT).show();
         } catch (DocumentException e) {
             e.printStackTrace();
         }
