@@ -23,37 +23,44 @@ import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.PdfWriter;
 
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
 
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
-
+import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 
 public class MainActivity extends AppCompatActivity {
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+//        try {
+//            if (!SharedPreferencesManager.getSomeBooleanValue("PERMISOS")) {
+//                Intent intent;
+//                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+//                    intent = new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+//                    startActivity(intent);
+//                    SharedPreferencesManager.setSomeBooleanValue("PERMISOS", true);
+//                }
+//            }
+//        } catch (Exception e) {
+//            Log.e("TAG", e.getMessage());
+//        }
 
-        try {
-            if (!SharedPreferencesManager.getSomeBooleanValue("PERMISOS")) {
-                Intent intent;
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
-                    intent = new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
-                    startActivity(intent);
-                    SharedPreferencesManager.setSomeBooleanValue("PERMISOS", true);
-                }
-            }
-        } catch (Exception e) {
-            Log.e("TAG", e.getMessage());
-        }
+        Intent intent = new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+        startActivity(intent);
 
     }
 
-//    @RequiresApi(api = Build.VERSION_CODES.M)
+
+
 //    private void requestPermission2() {
 //        if (this.checkSelfPermission(
 //                WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
@@ -89,6 +96,39 @@ public class MainActivity extends AppCompatActivity {
 //        }
 //    }
 
+public void  createPDF2(View view){
+        File directory;
+    directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+
+    File file = new File(directory, "ejemploPDF.pdf");
+    File filePDF= file;
+    File pdfFile = new File(String.valueOf(filePDF));
+    BufferedWriter bw;
+    EditText txt=(EditText) findViewById(R.id.txt_input);
+
+    if ((new File(String.valueOf(filePDF)).exists())) {
+        if (new File(String.valueOf(filePDF)).delete()) {
+            Log.i("Existe", "se ha eliminado el archivo .pff exitosamente");
+        } else
+            Log.e("Crear crearPDF", "No se ha eliminado el archivo .pdf ");
+    }
+
+    try {
+        if (pdfFile.createNewFile()) {
+            Log.i("CaPro", "archivo creado");
+        }
+    } catch (IOException e) {
+        Toast.makeText(this, "Error al crear el PDF", Toast.LENGTH_SHORT).show();
+        e.printStackTrace();
+    }
+    try {
+        bw = new BufferedWriter(new FileWriter(filePDF));
+        bw.write(txt.getText().toString());
+        bw.close();
+    }catch (IOException e){
+        e.printStackTrace();
+    }
+}
 
 
 
