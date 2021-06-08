@@ -40,61 +40,63 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        requestPermission();
+        requestPermission2();
 
-//        try {
-//            if (!SharedPreferencesManager.getSomeBooleanValue("PERMISOS")) {
-//                Intent intent;
-//                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
-//                    intent = new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
-//                    startActivity(intent);
-//                    SharedPreferencesManager.setSomeBooleanValue("PERMISOS", true);
-//                }
-//            }
-//        } catch (Exception e) {
-//            Log.e("TAG", e.getMessage());
-//        }
+        try {
+            if (!SharedPreferencesManager.getSomeBooleanValue("PERMISOS")) {
+                Intent intent;
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                    intent = new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+                    startActivity(intent);
+                    SharedPreferencesManager.setSomeBooleanValue("PERMISOS", true);
+                }
+            }
+        } catch (Exception e) {
+            Log.e("TAG", e.getMessage());
+        }
 
-        Intent intent = new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
-        startActivity(intent);
+
 
     }
 
 
 
-//    private void requestPermission2() {
-//        if (this.checkSelfPermission(
-//                WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
-//                this.checkSelfPermission(
-//                        Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-//            Log.i("TAG", "requestPermission2: ok");
-//        } else {
-//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-//                requestPermissions(new String[]{
-//                        WRITE_EXTERNAL_STORAGE,
-//                        Manifest.permission.MANAGE_EXTERNAL_STORAGE,
-//                        Manifest.permission.READ_EXTERNAL_STORAGE,}, 1);
-//            }
-//        }
-//    }
-//
-//    private void requestPermission() {
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-//            try {
-//                Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
-//                intent.addCategory("android.intent.category.DEFAULT");
-//                intent.setData(Uri.parse(String.format("package:%s", this.getPackageName())));
-//                startActivityForResult(intent, 2296);
-//            } catch (Exception e) {
-//                Intent intent = new Intent();
-//                intent.setAction(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
-//                startActivityForResult(intent, 2296);
-//            }
-//        } else {
-//            //below android 11
-//            ActivityCompat.requestPermissions(this, new String[]{WRITE_EXTERNAL_STORAGE},
-//                    2);
-//        }
-//    }
+
+    private void requestPermission2() {
+        if (this.checkSelfPermission(
+                WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
+                this.checkSelfPermission(
+                        Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+            Log.i("TAG", "requestPermission2: ok");
+        } else {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                requestPermissions(new String[]{
+                        WRITE_EXTERNAL_STORAGE,
+                        Manifest.permission.MANAGE_EXTERNAL_STORAGE,
+                        Manifest.permission.READ_EXTERNAL_STORAGE,}, 1);
+            }
+        }
+    }
+
+    private void requestPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            try {
+                Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+                intent.addCategory("android.intent.category.DEFAULT");
+                intent.setData(Uri.parse(String.format("package:%s", this.getPackageName())));
+                startActivityForResult(intent, 2296);
+            } catch (Exception e) {
+                Intent intent = new Intent();
+                intent.setAction(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+                startActivityForResult(intent, 2296);
+            }
+        } else {
+            //below android 11
+            ActivityCompat.requestPermissions(this, new String[]{WRITE_EXTERNAL_STORAGE},
+                    2);
+        }
+    }
 
 public void  createPDF2(View view){
         File directory;
