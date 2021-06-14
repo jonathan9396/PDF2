@@ -1,9 +1,5 @@
 package com.example.pdf2;
 
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -11,12 +7,15 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.DocumentsContract;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
@@ -31,7 +30,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
-import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -42,7 +40,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         requestPermission();
         requestPermission2();
-
         try {
             if (!SharedPreferencesManager.getSomeBooleanValue("PERMISOS")) {
                 Intent intent;
@@ -55,19 +52,11 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             Log.e("TAG", e.getMessage());
         }
-
-
-
     }
 
-
-
-
     private void requestPermission2() {
-        if (this.checkSelfPermission(
-                WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
-                this.checkSelfPermission(
-                        Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+        if (this.checkSelfPermission(WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
+                this.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
             Log.i("TAG", "requestPermission2: ok");
         } else {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -75,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
                         WRITE_EXTERNAL_STORAGE,
                         Manifest.permission.MANAGE_EXTERNAL_STORAGE,
                         Manifest.permission.READ_EXTERNAL_STORAGE,}, 1);
+            } else {
             }
         }
     }
@@ -98,53 +88,50 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-public void  createPDF2(View view){
-        File directory;
-    directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+    public void createPDF2(View view) {
+        File directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
 
-    File file = new File(directory, "ejemploPDF.pdf");
-    File filePDF= file;
-    File pdfFile = new File(String.valueOf(filePDF));
-    BufferedWriter bw;
-    EditText txt=(EditText) findViewById(R.id.txt_input);
+        File filePDF = new File(directory, "ejemploPDF.pdf");
+        BufferedWriter bw;
+        EditText txt = findViewById(R.id.txt_input);
 
-    if ((new File(String.valueOf(filePDF)).exists())) {
-        if (new File(String.valueOf(filePDF)).delete()) {
-            Log.i("Existe", "se ha eliminado el archivo .pff exitosamente");
-        } else
-            Log.e("Crear crearPDF", "No se ha eliminado el archivo .pdf ");
-    }
-
-    try {
-        if (pdfFile.createNewFile()) {
-            Log.i("CaPro", "archivo creado");
+        if ((filePDF.exists())) {
+            if (filePDF.delete()) {
+                Log.i("Existe", "se ha eliminado el archivo .pff exitosamente");
+            } else
+                Log.e("Crear crearPDF", "No se ha eliminado el archivo .pdf ");
         }
-    } catch (IOException e) {
-        Toast.makeText(this, "Error al crear el PDF", Toast.LENGTH_SHORT).show();
-        e.printStackTrace();
+
+        try {
+            if (filePDF.createNewFile()) {
+                Log.i("CaPro", "archivo creado");
+            }
+        } catch (IOException e) {
+            Toast.makeText(this, "Error al crear el PDF", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
+
+        try {
+            bw = new BufferedWriter(new FileWriter(filePDF));
+            bw.write(txt.getText().toString());
+            bw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
-    try {
-        bw = new BufferedWriter(new FileWriter(filePDF));
-        bw.write(txt.getText().toString());
-        bw.close();
-    }catch (IOException e){
-        e.printStackTrace();
-    }
-}
 
-
-
-    public void createPDF(View view){
-        EditText txt=(EditText) findViewById(R.id.txt_input);
-        Document doc=new Document();
-        String outPath= Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)+"/"+ "ejemplo.pdf";
-        try{
-            PdfWriter.getInstance(doc,new FileOutputStream(outPath));
+    public void createPDF(View view) {
+        EditText txt = findViewById(R.id.txt_input);
+        Document doc = new Document();
+        String outPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                + "/" + "ejemplo.pdf";
+        try {
+            PdfWriter.getInstance(doc, new FileOutputStream(outPath));
             doc.open();
             doc.add(new Paragraph(txt.getText().toString()));
             doc.close();
             Toast.makeText(this, "PDF creado", Toast.LENGTH_SHORT).show();
-        }catch (FileNotFoundException e){
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
             Toast.makeText(this, "Error al crear el PDF", Toast.LENGTH_SHORT).show();
         } catch (DocumentException e) {
@@ -152,4 +139,17 @@ public void  createPDF2(View view){
         }
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == 1 || requestCode == 2) {
+            if (grantResults.length != 0)
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                    Toast.makeText(this, "Permiso concedido.", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "Permiso Denegado.", Toast.LENGTH_SHORT).show();
+            this.finish();
+        }
+    }
 }
