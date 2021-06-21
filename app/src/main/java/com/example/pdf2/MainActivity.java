@@ -1,6 +1,7 @@
 package com.example.pdf2;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -17,8 +18,11 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
+import com.example.pdf2.Inconsistencia.Inconsistencia;
+import com.example.pdf2.Interfaz.InterfazAPI;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.List;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.PdfWriter;
 
@@ -28,6 +32,13 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Array;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
@@ -122,22 +133,45 @@ public class MainActivity extends AppCompatActivity {
 
     public void createPDF(View view) {
         EditText txt = findViewById(R.id.txt_input);
-        Document doc = new Document();
-        String outPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-                + "/" + "ejemplo.pdf";
-        try {
-            PdfWriter.getInstance(doc, new FileOutputStream(outPath));
-            doc.open();
-            doc.add(new Paragraph(txt.getText().toString()));
-            doc.close();
-            Toast.makeText(this, "PDF creado", Toast.LENGTH_SHORT).show();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            Toast.makeText(this, "Error al crear el PDF", Toast.LENGTH_SHORT).show();
-        } catch (DocumentException e) {
-            e.printStackTrace();
-        }
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://www.censospanama.pa/")
+                .addConverterFactory(GsonConverterFactory.create()).build();
+
+        InterfazAPI interfazAPI = retrofit.create(InterfazAPI.class);
+        Call<Inconsistencia> call = interfazAPI.find(txt.getText().toString());
+        call.enqueue(new Callback<Inconsistencia>() {
+            @SuppressLint("SdCardPath")
+            @Override
+            public void onResponse(Call<Inconsistencia> call, Response<Inconsistencia> response) {
+                if (response.isSuccessful()) {
+                    Inconsistencia p = response.body();
+                    Document doc = new Document();
+                    String outPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                            + "/" + "ejemplo.pdf";
+                    try {
+                        PdfWriter.getInstance(doc, new FileOutputStream(outPath));
+                        doc.open();
+                        doc.add(new Paragraph(txt.getText().toString()));
+                        doc.close();
+                        Toast.makeText(MainActivity.this, "PDF creado", Toast.LENGTH_SHORT).show();
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                        Toast.makeText(MainActivity.this, "Error al crear el PDF", Toast.LENGTH_SHORT).show();
+                    } catch (DocumentException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+
+            }
+
+            public void onFailure(Call<Inconsistencia> call, Throwable t) {
+                Toast.makeText(MainActivity.this, "Error de conexion",
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
     }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
